@@ -1,7 +1,7 @@
 from bygrid.client import client
 from bygrid.order import Order
 from bygrid.symbol import Symbol
-
+from bygrid.utils import get_decimal_precision,format_decimal
 
 class GridOrder(object):
     """
@@ -24,6 +24,7 @@ class GridOrder(object):
 
         self._each_grid_investment = self.total_investment / (self.grid_quantity - 1)
         self.buy_order_list = self._generate_buy_order_list()
+        self.init_sell_order_number = self.grid_quantity - len(self.buy_order_list) - 1
         self.sel_order_list = None  # will be generated after buy initial base asset
 
         self._init_quote_investment = self._each_grid_investment * len(self.buy_order_list)
@@ -132,15 +133,23 @@ class GridOrder(object):
         return order_list
 
     def _generate_sell_order_list(self):
-        self._init_base_quantity
-        sell_order_number = self.grid_quantity - len(self.buy_order_list) - 1
-        each_grid_base_quantity = self._init_base_quantity / sell_order_number
+
+        def get_sell_quantity_list(iq, num, step):
+            precision = get_decimal_precision(step)
+            # "{:.{}f}".format(pi, precision)
+            each_order_quantity = format_decimal(iq / num, precision)
+            sell_list = []
+            for j in range(1, num):
+                sell_list.append(each_order_quantity)
+                iq -= each_order_quantity
+            sell_list.append(format_decimal(iq, precision))
+            return sell_list
+
+        sell_quantity_list = get_sell_quantity_list(self._init_base_quantity, self.init_sell_order_number,
+                                                    self.symbol.step_size)
         # create sell list
         order_list = []
-        for i in reversed(self._price_list):
-            if i > self._init_price:
-                order = Order(self.symbol.name, i, 'SELL', each_grid_base_quantity)
-                order_list.append(order)
-            else:
-                break
+        for i in reversed(self._price_list[-self.init_sell_order_number:]):
+            order = Order(self.symbol.name, i, 'SELL', sell_quantity_list.pop())
+            order_list.append(order)
         return order_list
