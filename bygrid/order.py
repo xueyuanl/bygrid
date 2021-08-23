@@ -1,6 +1,6 @@
 class Order(object):
     def __init__(self, symbol, price, side, quantity):
-        self.symbol = symbol
+        self.symbol_name = symbol
         self.price = price
         self.side = side  # buy or sell
 

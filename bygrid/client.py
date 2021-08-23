@@ -11,11 +11,7 @@ print(id(client))
 
 
 # print(json.dumps(client.account()))
-def symbol_price(symbol):  # DOGEUSDT
-    response = client.ticker_price(symbol)
-    price = response['price']
-    print('current price is ' + price)
-    return float(price)
+
 
 
 def post_new_order_by_quantity(symbol, side, quantity, price, type_='LIMIT', time_in_force='GTC'):

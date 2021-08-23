@@ -12,22 +12,22 @@ def main():
         'price': 0.2
     }
 
-    response = client.exchange_info('MATICUSDT')
-    print(json.dumps(response))
+    #response = client.exchange_info('MATICUSDT')
+    #print(json.dumps(response))
     # response = client.coin_info()
     # response = client.ticker_price('DOGEUSDT')
 
     # print(json.dumps(response))
 
     grid_params = {
-        'symbol': 'MATICUSDT',
+        'symbol_name': 'MATICUSDT',
         'upper_price': 5,
         'lower_price': 1,
         'grid_quantity': 5,
         'investment': 40
     }
-    #grid_order = GridOrder(**grid_params)
-    #grid_order.post_grid_order()
+    grid_order = GridOrder(**grid_params)
+    grid_order.post_grid_order()
 
 if __name__ == '__main__':
     main()

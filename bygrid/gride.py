@@ -1,5 +1,6 @@
-from bygrid.client import symbol_price, client
+from bygrid.client import client
 from bygrid.order import Order
+from bygrid.symbol import Symbol
 
 
 class GridOrder(object):
@@ -7,8 +8,8 @@ class GridOrder(object):
 
     """
 
-    def __init__(self, symbol, upper_price, lower_price, grid_quantity, investment, arithmetic=True):
-        self.symbol = symbol
+    def __init__(self, symbol_name, upper_price, lower_price, grid_quantity, investment, arithmetic=True):
+        self.symbol = Symbol(symbol_name)
         self.upper_limit_prise = upper_price
         self.lower_limit_price = lower_price
         self.grid_quantity = grid_quantity
@@ -17,7 +18,7 @@ class GridOrder(object):
         self.arithmetic = arithmetic  # arithmetic or geometric
         self.txs = 0
 
-        self._init_price = symbol_price(self.symbol)
+        self._init_price = Symbol.symbol_price(self.symbol.name)
         self.price_interval = self._calculate_interval(upper_price, lower_price, grid_quantity)
         self._price_list = self._generate_price_list()
 
@@ -45,7 +46,7 @@ class GridOrder(object):
         print('post buy order list')
         for i in self.buy_order_list:
             params = {
-                'symbol': self.symbol,
+                'symbol': self.symbol.name,
                 'side': 'BUY',
                 'type': 'LIMIT',
                 'timeInForce': 'GTC',
@@ -62,7 +63,7 @@ class GridOrder(object):
         print('post sell order list')
         for i in self.sel_order_list:
             params = {
-                'symbol': self.symbol,
+                'symbol': self.symbol.name,
                 'side': 'SELL',
                 'type': 'LIMIT',
                 'timeInForce': 'GTC',
@@ -80,7 +81,7 @@ class GridOrder(object):
 
     def _buy_base_asset(self):
         params = {
-            'symbol': self.symbol,
+            'symbol': self.symbol.name,
             'side': 'BUY',
             'type': 'MARKET',
             'quoteOrderQty': self._init_base_investment
@@ -124,7 +125,7 @@ class GridOrder(object):
         # create buy list
         for i in self._price_list:
             if i < self._init_price:
-                order = Order(self.symbol, i, 'BUY', self._each_grid_investment / i)
+                order = Order(self.symbol.name, i, 'BUY', self._each_grid_investment / i)
                 order_list.append(order)
             else:
                 break
@@ -138,7 +139,7 @@ class GridOrder(object):
         order_list = []
         for i in reversed(self._price_list):
             if i > self._init_price:
-                order = Order(self.symbol, i, 'SELL', each_grid_base_quantity)
+                order = Order(self.symbol.name, i, 'SELL', each_grid_base_quantity)
                 order_list.append(order)
             else:
                 break
