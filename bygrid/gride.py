@@ -1,7 +1,8 @@
 from bygrid.client import client
 from bygrid.order import Order
 from bygrid.symbol import Symbol
-from bygrid.utils import get_decimal_precision,format_decimal
+from bygrid.utils import get_decimal_precision, format_decimal
+
 
 class GridOrder(object):
     """
@@ -46,15 +47,7 @@ class GridOrder(object):
     def _post_buy_order_list(self):
         print('post buy order list')
         for i in self.buy_order_list:
-            params = {
-                'symbol': self.symbol.name,
-                'side': 'BUY',
-                'type': 'LIMIT',
-                'timeInForce': 'GTC',
-                'quantity': i.quantity,
-                'price': i.price
-            }
-            response = client.new_order(**params)
+            response = i.post_order()
             print(response)
             i.order_id = response['orderId']
             i.client_order_id = response['clientOrderId']
@@ -63,15 +56,7 @@ class GridOrder(object):
     def _post_sell_order_list(self):
         print('post sell order list')
         for i in self.sel_order_list:
-            params = {
-                'symbol': self.symbol.name,
-                'side': 'SELL',
-                'type': 'LIMIT',
-                'timeInForce': 'GTC',
-                'quantity': i.quantity,
-                'price': i.price
-            }
-            response = client.new_order(**params)
+            response = i.post_order()
             print(response)
             i.order_id = response['orderId']
             i.client_order_id = response['clientOrderId']
